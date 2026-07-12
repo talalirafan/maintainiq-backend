@@ -7,7 +7,7 @@ Express + TypeScript API for **MaintainIQ** — AI-powered QR maintenance & asse
 **Swagger:** http://54.144.78.175/api/docs  
 **Health:** http://54.144.78.175/health
 
-> Frontend lives in a **separate repository**: `maintainiq-frontend`.
+> Frontend (separate repo): https://github.com/talalirafan/maintainiq-frontend
 
 ---
 
