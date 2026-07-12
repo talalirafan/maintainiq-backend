@@ -6,6 +6,11 @@ export const env = {
   nodeEnv: process.env.NODE_ENV ?? 'development',
   port: Number(process.env.PORT ?? 5000),
   clientUrl: process.env.CLIENT_URL ?? 'http://localhost:3000',
+  /** Comma-separated extra allowed CORS origins (e.g. Vercel preview/production URLs) */
+  clientUrls: (process.env.CLIENT_URLS ?? '')
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean),
   publicAppUrl: process.env.PUBLIC_APP_URL ?? 'http://localhost:3000',
   apiBaseUrl: process.env.API_BASE_URL ?? 'http://localhost:5000',
   mongoUri: process.env.MONGO_URI ?? '',

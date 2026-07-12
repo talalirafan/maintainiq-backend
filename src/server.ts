@@ -21,9 +21,26 @@ const app = express();
 
 app.set('trust proxy', 1);
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+
+const allowedOrigins = new Set([env.clientUrl, ...env.clientUrls].filter(Boolean));
 app.use(
   cors({
-    origin: env.clientUrl,
+    origin(origin, callback) {
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+      try {
+        const host = new URL(origin).hostname;
+        if (allowedOrigins.has(origin) || host.endsWith('.vercel.app')) {
+          callback(null, true);
+          return;
+        }
+      } catch {
+        // ignore invalid origin
+      }
+      callback(null, false);
+    },
     credentials: true,
   }),
 );
