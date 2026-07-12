@@ -1,0 +1,369 @@
+{
+  "info": {
+    "name": "MaintainIQ API",
+    "description": "MaintainIQ backend collection — Auth, Assets, QR, Public, Issues, Maintenance, AI, History.\n\nDemo credentials:\n- Admin: admin@maintainiq.local / Admin123!\n- Technician: testtech@gmail.com / Test@1234",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://54.144.78.175/api" },
+    { "key": "localBaseUrl", "value": "http://localhost:5000/api" },
+    { "key": "accessToken", "value": "" },
+    { "key": "refreshToken", "value": "" },
+    { "key": "assetId", "value": "" },
+    { "key": "issueId", "value": "" },
+    { "key": "maintenanceId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/../health"
+          }
+        },
+        {
+          "name": "API index",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.data && res.data.accessToken) {",
+                  "  pm.collectionVariables.set('accessToken', res.data.accessToken);",
+                  "  pm.collectionVariables.set('refreshToken', res.data.refreshToken);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@maintainiq.local\",\n  \"password\": \"Admin123!\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/login"
+          }
+        },
+        {
+          "name": "Login (Technician)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.data && res.data.accessToken) {",
+                  "  pm.collectionVariables.set('accessToken', res.data.accessToken);",
+                  "  pm.collectionVariables.set('refreshToken', res.data.refreshToken);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"testtech@gmail.com\",\n  \"password\": \"Test@1234\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/login"
+          }
+        },
+        {
+          "name": "Me",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/auth/me"
+          }
+        },
+        {
+          "name": "Refresh",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/refresh"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Assets",
+      "item": [
+        {
+          "name": "List assets",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/assets?page=1&limit=20"
+          }
+        },
+        {
+          "name": "Create asset",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.data && res.data.id) pm.collectionVariables.set('assetId', res.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"HVAC Unit A1\",\n  \"category\": \"HVAC\",\n  \"location\": \"Building 2 · Floor 1\",\n  \"condition\": \"good\",\n  \"status\": \"operational\",\n  \"description\": \"Demo asset\"\n}"
+            },
+            "url": "{{baseUrl}}/assets"
+          }
+        },
+        {
+          "name": "Get asset",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/assets/{{assetId}}"
+          }
+        },
+        {
+          "name": "QR preview",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/assets/{{assetId}}/qr/preview"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Public",
+      "item": [
+        {
+          "name": "Public asset",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/public/assets/{{assetId}}"
+          }
+        },
+        {
+          "name": "Public triage",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"complaint\": \"Unit is making a loud grinding noise and vibrating during operation.\"\n}"
+            },
+            "url": "{{baseUrl}}/public/assets/{{assetId}}/triage"
+          }
+        },
+        {
+          "name": "Public report issue",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Loud grinding noise\",\n  \"description\": \"Unit is making a loud grinding noise and vibrating during operation.\",\n  \"category\": \"Mechanical\",\n  \"priority\": \"high\",\n  \"reporterName\": \"Guest User\",\n  \"reporterEmail\": \"guest@example.com\"\n}"
+            },
+            "url": "{{baseUrl}}/public/assets/{{assetId}}/issues"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Issues",
+      "item": [
+        {
+          "name": "List issues",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/issues?page=1&limit=20&openOnly=true"
+          }
+        },
+        {
+          "name": "Get issue",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/issues/{{issueId}}"
+          }
+        },
+        {
+          "name": "Assign issue",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"technicianId\": \"TECHNICIAN_USER_ID\"\n}"
+            },
+            "url": "{{baseUrl}}/issues/{{issueId}}/assign"
+          }
+        },
+        {
+          "name": "Transition status",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"maintenance\"\n}"
+            },
+            "url": "{{baseUrl}}/issues/{{issueId}}/status"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Maintenance",
+      "item": [
+        {
+          "name": "Start maintenance",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.data && res.data.id) pm.collectionVariables.set('maintenanceId', res.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"issueId\": \"{{issueId}}\"\n}"
+            },
+            "url": "{{baseUrl}}/maintenance/start"
+          }
+        },
+        {
+          "name": "Complete maintenance",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"inspectionNotes\": \"Inspected bearings and replaced worn belt. Unit runs quietly.\",\n  \"partsUsed\": [{ \"name\": \"Drive belt\", \"quantity\": 1, \"unitCost\": 45 }],\n  \"cost\": 45,\n  \"timeTakenMinutes\": 60,\n  \"media\": [],\n  \"nextServiceDate\": \"2026-10-12\",\n  \"resolveIssue\": true\n}"
+            },
+            "url": "{{baseUrl}}/maintenance/{{maintenanceId}}/complete"
+          }
+        }
+      ]
+    },
+    {
+      "name": "AI",
+      "item": [
+        {
+          "name": "Triage",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"assetId\": \"{{assetId}}\",\n  \"complaint\": \"Overheating smell near the motor housing after 20 minutes of use.\"\n}"
+            },
+            "url": "{{baseUrl}}/ai/triage"
+          }
+        },
+        {
+          "name": "Maintenance summary",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"issueId\": \"{{issueId}}\",\n  \"inspectionNotes\": \"Replaced belt, cleaned filters, verified airflow.\",\n  \"partsUsed\": [{ \"name\": \"Drive belt\", \"quantity\": 1 }],\n  \"timeTakenMinutes\": 45,\n  \"cost\": 45\n}"
+            },
+            "url": "{{baseUrl}}/ai/maintenance-summary"
+          }
+        }
+      ]
+    },
+    {
+      "name": "History",
+      "item": [
+        {
+          "name": "Global history",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/history?page=1&limit=20"
+          }
+        },
+        {
+          "name": "History summary",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/history/summary"
+          }
+        },
+        {
+          "name": "Asset history",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/history/assets/{{assetId}}"
+          }
+        }
+      ]
+    }
+  ]
+}
